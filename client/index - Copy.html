@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+  <link rel="stylesheet" href="css/main.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script type="text/javascript" src="js/bootstrap-filestyle.min.js"> </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<div class="jumbotron text-center">
+  <h1>MEGA</h1>
+  <p>Developer Test</p> 
+</div>
+
+<div class="container">
+
+  <div class="row">
+      <div class="col-sm-4">
+          <h3>File Upload</h3>
+
+          <form method="post" id="form1" action="save_data.php" enctype="multipart/form-data">
+            
+            <div class="form-group">
+              <label style="font-size:small" for="encript_pass">Enter Password to Encript Files</label>
+              <input type="password" id="encript_pass" name="encript_pass" minlength="8" required>
+            </div>
+
+            <div class="form-group">
+              <p><label for="image">Upload File</label></p>
+              <label id="image_display"></label>
+              <div>
+                <div style="float: left;">
+                  <input type="file" id="image" name="image" accept=".png, .jpg, .jpeg" class="filestyle" data-classButton="btn btn-primary" data-input="false" data-classIcon="icon-plus" data-text="Browse" onchange="showFile(this); readFile(this);" />
+                </div>
+
+                <div style="float: left;">
+                  <button onclick="move()" type="submit" name="submit" class="btn-upload btn btn-primary">UPLOAD</button>
+                </div>
+                <div style="clear: both;"></div>
+              </div>
+
+              <div id="file_status" class="alert alert-light" role="alert"></div>
+              <output id="list"></output>
+            </div>
+            <!-- To store file -->
+            <input type="hidden" name="image_name" id="image_name" />
+            <input type="hidden" name="image_data" id="image_data" />
+          </form>
+      </div>
+
+      <div class="col-sm-8">
+      <h4>Progress</h4>
+    
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Name</th>
+              <th scope="col">Progress</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td id="d_date"></td>
+              <td id="d_name"></td>
+              <td id="">
+                <span id="myProgress">
+                <p id="myBar"></p>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      
+      </div>
+    </div>
+</div>
+
+<script>
+
+var i = 0;
+function move() {
+  if (document.getElementById("image_name").value != ""){
+    if (i == 0) {
+      i = 1;
+      var elem = document.getElementById("myBar");
+      var width = 1;
+      var id = setInterval(frame, 10);
+      function frame() {
+        if (width >= 100) {
+          clearInterval(id);
+          i = 0;
+        } else {
+          width++;
+          elem.style.width = width + "%";
+        }
+      }
+    }
+  }
+}
+
+
+$(document).ready(function() {
+  const frm = $('#form1');
+  frm.submit(function (e) {
+    e.preventDefault();
+    $.ajax({
+        type: frm.attr('method'),
+        url: frm.attr('action'),
+        data: frm.serialize(),
+        success: function (data) {
+          //console.log(data);
+
+          var jsonData = JSON.parse(data);
+          //alert(Object.values(jsonData));
+
+          if (jsonData.success == "1")
+          {
+            $("#file_status").html('File Upload Successful');
+          }
+          else
+          {
+            $("#file_status").html('File Upload Failed');
+          }
+      },
+      error: function (data) {
+          //alert('An error occurred.');
+          console.log(data);
+      },
+    });
+  });
+});
+
+
+function showFile(input) {
+  let file = input.files[0];
+  document.getElementById("image_display").textContent = `${file.name}`;
+  document.getElementById("image_name").value = `${file.name}`;
+
+  document.getElementById("d_name").textContent = `${file.name}`;
+  const newDate = new Date(file.lastModified);
+  const listDate = newDate.toLocaleDateString();
+  document.getElementById("d_date").textContent = `${listDate}`;
+}
+
+
+function readFile(input) {
+  let file = input.files[0];
+
+  const reader = new FileReader();
+
+  reader.readAsDataURL(file);
+  //reader.readAsText(file);
+
+  console.log('LOADING', reader.readyState); // readyState 1
+
+  document.getElementById("file_status").style="display: block;;";
+  document.getElementById("file_status").textContent = 'LOADING ...';
+
+  reader.onload = function() {
+    //console.log('Result: ', reader.result);
+    document.getElementById("image_data").value = reader.result;
+  };
+
+  reader.onerror = function() {
+    console.log(reader.error);
+    document.getElementById("file_status").style="display: block;;";
+    document.getElementById("file_status").textContent = 'Something went wrong, please try again.';
+  };
+
+  reader.onloadend = function () {
+    console.log('DONE', reader.readyState); // readyState 2
+    document.getElementById("file_status").style="display: block;;";
+    document.getElementById("file_status").textContent = 'LOADING COMPLETED';
+
+    // Display image
+    const span = document.createElement('span');
+    span.innerHTML = ['<img class="thumb" src="', reader.result, '"/>'].join('');
+    document.getElementById('list').insertBefore(span, null);
+  };
+}
+
+</script>
+
+</body>
+</html>

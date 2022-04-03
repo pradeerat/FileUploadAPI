@@ -1,0 +1,24 @@
+.btn-upload{
+    background-color: #1b1b1b7c;
+    margin-left: 10px;
+   /* width: 100px;*/
+}
+#myProgress {
+    width: 50%;
+    background-color: #ddd;
+}
+
+#myBar {
+    width: 1%;
+    height: 20px;
+    background-color: #04AA6D;
+}
+
+#file_status {
+    display: none; 
+    text-align: left;
+    background-color: #04aa6d02;
+    font-weight: bold;
+    color: #e915155b;
+    margin-left: -20px;
+}
